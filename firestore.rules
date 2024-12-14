@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Fonction pour vérifier si l'utilisateur est authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fonction pour vérifier si l'utilisateur est le propriétaire du document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Fonction pour valider les données d'une propriété
+    function isValidProperty() {
+      let requiredFields = [
+        'type',
+        'price',
+        'saleDate',
+        'firstMandateDate',
+        'firstMandatePrice',
+        'address',
+        'city',
+        'district',
+        'parkingSpots',
+        'condition',
+        'epcElectricity',
+        'epcGes',
+        'occupancyStatus',
+        'surface',
+        'userId',
+        'createdAt'
+      ];
+      
+      let optionalFields = [
+        'typology',
+        'houseType',
+        'floor',
+        'constructionYear',
+        'exterior',
+        'plotSurface'
+      ];
+      
+      let validTypes = ['apartment', 'house', 'land'];
+      let validHouseTypes = ['individual', 'individual-condo', 'semi-detached', 'semi-detached-condo'];
+      let validConditions = ['to-renovate', 'to-refresh', 'good', 'very-good', 'renovated', 'new', 'high-end', 'vefa'];
+      let validEpcRatings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+      let validExteriors = ['none', 'garden', 'terrace', 'balcon'];
+      let validOccupancyStatus = ['free', 'occupied'];
+      
+      return request.resource.data.keys().hasAll(requiredFields)
+        && (request.resource.data.keys().hasOnly(requiredFields.concat(optionalFields)))
+        && request.resource.data.type in validTypes
+        && request.resource.data.price is number && request.resource.data.price >= 0
+        && request.resource.data.saleDate is string
+        && request.resource.data.firstMandateDate is string
+        && request.resource.data.firstMandatePrice is number && request.resource.data.firstMandatePrice >= 0
+        && request.resource.data.address is string
+        && request.resource.data.city is string
+        && request.resource.data.district is string
+        && request.resource.data.parkingSpots is number && request.resource.data.parkingSpots >= 0
+        && request.resource.data.condition in validConditions
+        && request.resource.data.epcElectricity in validEpcRatings
+        && request.resource.data.epcGes in validEpcRatings
+        && request.resource.data.occupancyStatus in validOccupancyStatus
+        && request.resource.data.surface is number && request.resource.data.surface > 0
+        && request.resource.data.userId == request.auth.uid
+        && (
+          !('houseType' in request.resource.data) || 
+          request.resource.data.houseType in validHouseTypes
+        )
+        && (
+          !('exterior' in request.resource.data) || 
+          request.resource.data.exterior in validExteriors
+        )
+        && (
+          !('plotSurface' in request.resource.data) || 
+          (request.resource.data.plotSurface is number && request.resource.data.plotSurface >= 0)
+        );
+    }
+
+    // Règles pour la collection properties
+    match /properties/{propertyId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // Règles pour la collection cache
+    match /cache/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
