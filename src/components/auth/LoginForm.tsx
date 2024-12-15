@@ -1,26 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoImage from '../../assets/logo.png';
+import { signIn } from '../../services/auth';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-      if (email && password) {
-        // Stocker l'état d'authentification
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/dashboard');
-        window.location.reload(); // Forcer le rechargement pour mettre à jour l'état d'auth
-      } else {
+      if (!email || !password) {
         setError('Veuillez remplir tous les champs');
+        return;
       }
-    } catch (err) {
-      setError('Email ou mot de passe incorrect');
+
+      await signIn(email, password);
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err.code === 'auth/invalid-credential') {
+        setError('Email ou mot de passe incorrect');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Trop de tentatives. Veuillez réessayer plus tard.');
+      } else {
+        setError('Une erreur est survenue. Veuillez réessayer.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,6 +58,7 @@ export default function LoginForm() {
                 className="mt-1 block w-full px-3 py-2 bg-[#E5DED5] border border-[#E5DED5]/30 rounded-lg 
                          text-[#4A4238] placeholder-[#4A4238]/60
                          focus:outline-none focus:ring-2 focus:ring-[#E5DED5]/50 focus:border-transparent"
+                disabled={loading}
                 required
               />
             </div>
@@ -61,23 +75,25 @@ export default function LoginForm() {
                 className="mt-1 block w-full px-3 py-2 bg-[#E5DED5] border border-[#E5DED5]/30 rounded-lg 
                          text-[#4A4238] placeholder-[#4A4238]/60
                          focus:outline-none focus:ring-2 focus:ring-[#E5DED5]/50 focus:border-transparent"
+                disabled={loading}
                 required
               />
             </div>
 
             {error && (
-              <div className="text-red-300 text-sm mt-2">
-                {error}
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full px-4 py-2 text-[#4A4238] bg-[#E5DED5] rounded-lg font-medium
-                       hover:bg-white transition-colors duration-200
-                       focus:outline-none focus:ring-2 focus:ring-[#E5DED5]/50 focus:ring-offset-2 focus:ring-offset-[#4A4238]"
+              disabled={loading}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[#4A4238] bg-[#E5DED5] hover:bg-[#E5DED5]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#E5DED5] ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Se connecter
+              {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
         </div>

@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simuler une vérification d'authentification
-    const checkAuth = () => {
-      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-      setUser(isAuthenticated);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setLoading(false);
-    };
+    });
 
-    checkAuth();
+    // Cleanup subscription
+    return () => unsubscribe();
   }, []);
 
   return { user, loading };

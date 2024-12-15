@@ -1,59 +1,25 @@
-import { useState, useEffect } from 'react';
-import { calculatePropertyStats, PropertyStats } from '../services/stats';
-import { getRecentSales } from '../services/properties';
+import { useEffect, useState } from 'react';
+import { calculateStats, Stats } from '../services/stats';
+import { useProperties } from './useProperties';
 
-const DEFAULT_STATS: PropertyStats = {
-  totalSales: 0,
-  averagePrice: 0,
-  averageSaleTime: 0,
-  totalVolume: 0,
-  byPropertyType: { apartment: 0, house: 0, land: 0 },
-  priceEvolution: 0,
-  averagePriceByType: { apartment: 0, house: 0, land: 0 },
-  averageNegotiation: 0
-};
-
-export function usePropertyStats(userId: string | undefined) {
-  const [stats, setStats] = useState<PropertyStats>(DEFAULT_STATS);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function usePropertyStats() {
+  const { properties, loading, error } = useProperties();
+  const [stats, setStats] = useState<Stats>({
+    totalProperties: 0,
+    averagePrice: 0,
+    totalVolume: 0,
+    averageNegotiation: 0,
+    pricePerSqm: 0,
+    propertyTypeBreakdown: 'N/A',
+    topCities: []
+  });
 
   useEffect(() => {
-    let mounted = true;
-
-    const loadStats = async () => {
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null);
-        const properties = await getRecentSales(12, userId);
-        const calculatedStats = calculatePropertyStats(properties);
-        
-        if (mounted) {
-          setStats(calculatedStats);
-        }
-      } catch (error) {
-        if (mounted) {
-          setError('Impossible de charger les statistiques');
-          setStats(DEFAULT_STATS);
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadStats();
-
-    return () => {
-      mounted = false;
-    };
-  }, [userId]);
+    if (!loading && !error && properties.length > 0) {
+      const calculatedStats = calculateStats(properties);
+      setStats(calculatedStats);
+    }
+  }, [properties, loading, error]);
 
   return { stats, loading, error };
 }

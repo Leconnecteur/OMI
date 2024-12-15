@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, orderBy, limit, Timestamp, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, Timestamp, addDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Property } from '../types/property';
 
@@ -46,37 +46,58 @@ export async function submitProperty(
 }
 
 export async function getRecentSales(months: number = 12, userId: string): Promise<Property[]> {
-  if (!userId) return [];
+  console.log('Getting recent sales for user:', userId, 'months:', months);
+  if (!userId) {
+    console.log('No userId provided');
+    return [];
+  }
 
   try {
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - months);
-
+    startDate.setHours(0, 0, 0, 0);
+    
+    console.log('Fetching properties since:', startDate);
+    
     const propertiesRef = collection(db, 'properties');
+    console.log('Collection reference:', propertiesRef);
+
     const q = query(
       propertiesRef,
       where('userId', '==', userId),
-      orderBy('saleDate', 'desc')
+      orderBy('createdAt', 'desc')
     );
+    console.log('Query created:', q);
 
+    console.log('Executing Firestore query...');
     const querySnapshot = await getDocs(q);
+    console.log('Query completed, documents found:', querySnapshot.size);
+
     const properties = querySnapshot.docs.map(doc => {
       const data = doc.data();
+      console.log('Raw property data:', {
+        id: doc.id,
+        mandateDate: data.mandateDate,
+        saleDate: data.saleDate,
+        dateMandat: data.dateMandat, // Checking alternative field names
+        dateVente: data.dateVente,
+        allFields: Object.keys(data)
+      });
+      
       return {
         id: doc.id,
         ...data,
-        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt)
+        createdAt: data.createdAt?.toDate?.() || new Date(),
+        mandateDate: data.dateMandat?.toDate?.() || data.mandateDate?.toDate?.() || null,
+        saleDate: data.dateVente?.toDate?.() || data.saleDate?.toDate?.() || null,
       } as Property;
     });
 
-    // Filtrer les propriétés après avoir récupéré les données
-    return properties.filter(property => {
-      const saleDate = new Date(property.saleDate);
-      return saleDate >= startDate;
-    });
+    console.log('Processed properties:', properties);
+    return properties;
   } catch (error) {
-    console.error('Error getting recent sales:', error);
-    return [];
+    console.error('Error in getRecentSales:', error);
+    throw error;
   }
 }
 

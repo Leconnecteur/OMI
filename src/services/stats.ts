@@ -1,155 +1,118 @@
 import { Property } from '../types/property';
 
-export interface PropertyStats {
-  totalSales: number;
+export interface Stats {
+  totalProperties: number;
   averagePrice: number;
-  averageSaleTime: number;
   totalVolume: number;
-  byPropertyType: {
-    apartment: number;
-    house: number;
-    land: number;
-  };
-  priceEvolution: number;
-  averagePriceByType: {
-    apartment: number;
-    house: number;
-    land: number;
-  };
   averageNegotiation: number;
+  pricePerSqm: number;
+  propertyTypeBreakdown: string;
+  topCities: Array<{ city: string; count: number }>;
 }
 
-export function calculatePropertyStats(properties: Property[]): PropertyStats {
+export function calculateStats(properties: Property[]): Stats {
   if (!properties.length) {
     return {
-      totalSales: 0,
+      totalProperties: 0,
       averagePrice: 0,
-      averageSaleTime: 0,
       totalVolume: 0,
-      byPropertyType: { apartment: 0, house: 0, land: 0 },
-      priceEvolution: 0,
-      averagePriceByType: { apartment: 0, house: 0, land: 0 },
-      averageNegotiation: 0
+      averageNegotiation: 0,
+      pricePerSqm: 0,
+      propertyTypeBreakdown: 'N/A',
+      topCities: []
     };
   }
 
-  const now = new Date();
-  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+  // Calcul du nombre total de biens
+  const totalProperties = properties.length;
 
-  // Filtrer les propriétés des 6 derniers mois
-  const recentProperties = properties.filter(p => {
-    const saleDate = new Date(p.saleDate);
-    return saleDate >= sixMonthsAgo;
-  });
+  // Calcul du prix moyen
+  const prices = properties.map(p => p.price).filter((price): price is number => price !== undefined && price !== null);
+  const averagePrice = calculateAverage(prices);
 
-  if (!recentProperties.length) {
-    return calculatePropertyStats([properties[properties.length - 1]]);
-  }
+  // Calcul du volume total
+  const totalVolume = prices.reduce((sum, price) => sum + price, 0);
 
-  // Calculer les statistiques par type
-  const byType = {
-    apartment: 0,
-    house: 0,
-    land: 0
-  };
+  // Calcul de la négociation moyenne
+  const negotiations = properties.map(p => {
+    if (!p.price || !p.firstMandatePrice) return null;
+    return ((p.firstMandatePrice - p.price) / p.firstMandatePrice) * 100;
+  }).filter((neg): neg is number => neg !== null);
+  const averageNegotiation = calculateAverage(negotiations);
 
-  const pricesByType = {
-    apartment: [] as number[],
-    house: [] as number[],
-    land: [] as number[]
-  };
+  // Calcul du prix moyen au m²
+  const pricesPerSqm = properties.map(p => {
+    if (!p.price || !p.surface) return null;
+    return p.price / p.surface;
+  }).filter((price): price is number => price !== null);
+  const pricePerSqm = Math.round(calculateAverage(pricesPerSqm));
 
-  let totalVolume = 0;
-  let totalSaleTime = 0;
-  let propertiesWithSaleTime = 0;
-  let totalNegotiationPercentage = 0;
-  let propertiesWithNegotiation = 0;
-  let propertiesWithPrice = 0;
+  // Calcul de la répartition par type de bien
+  const propertyTypeBreakdown = calculatePropertyTypeBreakdown(properties);
 
-  // N'utiliser que les propriétés récentes pour les calculs
-  recentProperties.forEach(property => {
-    const type = property.type.toLowerCase() as keyof typeof byType;
-    byType[type]++;
-    
-    if (property.price) {
-      pricesByType[type].push(property.price);
-      totalVolume += property.price;
-      propertiesWithPrice++;
-    }
-
-    // Calcul du délai de vente
-    if (property.saleDate && property.firstMandateDate) {
-      const saleDate = new Date(property.saleDate);
-      const mandateDate = new Date(property.firstMandateDate);
-      const saleTime = Math.floor((saleDate.getTime() - mandateDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (saleTime >= 0) { // On vérifie que la date de vente est après la date du mandat
-        totalSaleTime += saleTime;
-        propertiesWithSaleTime++;
-      }
-    }
-
-    // Calcul du pourcentage de négociation
-    if (property.price && property.firstMandatePrice) {
-      const negotiationPercentage = ((property.firstMandatePrice - property.price) / property.firstMandatePrice) * 100;
-      totalNegotiationPercentage += negotiationPercentage;
-      propertiesWithNegotiation++;
-    }
-  });
-
-  // Calculer les prix moyens par type
-  const averagePriceByType = {
-    apartment: calculateAverage(pricesByType.apartment),
-    house: calculateAverage(pricesByType.house),
-    land: calculateAverage(pricesByType.land)
-  };
-
-  // Calculer l'évolution des prix
-  const priceEvolution = calculatePriceEvolution(recentProperties);
-
-  // Calculer la moyenne de négociation
-  const averageNegotiation = propertiesWithNegotiation > 0 
-    ? totalNegotiationPercentage / propertiesWithNegotiation 
-    : 0;
-
-  // Calculer le délai de vente moyen
-  const averageSaleTime = propertiesWithSaleTime > 0
-    ? totalSaleTime / propertiesWithSaleTime
-    : 0;
+  // Calcul du top 5 des villes
+  const topCities = calculateTopCities(properties);
 
   return {
-    totalSales: recentProperties.length,
-    averagePrice: propertiesWithPrice > 0 ? totalVolume / propertiesWithPrice : 0,
-    averageSaleTime,
+    totalProperties,
+    averagePrice,
     totalVolume,
-    byPropertyType: byType,
-    priceEvolution,
-    averagePriceByType,
-    averageNegotiation
+    averageNegotiation,
+    pricePerSqm,
+    propertyTypeBreakdown,
+    topCities
   };
 }
 
 function calculateAverage(numbers: number[]): number {
-  if (!numbers.length) return 0;
-  return numbers.reduce((a, b) => a + b, 0) / numbers.length;
+  if (numbers.length === 0) return 0;
+  const sum = numbers.reduce((acc, val) => acc + val, 0);
+  return sum / numbers.length;
 }
 
-function calculatePriceEvolution(properties: Property[]): number {
-  if (properties.length < 2) return 0;
-
-  // Trier les propriétés par date de vente
-  const sortedProperties = [...properties].sort((a, b) => {
-    return new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime();
+function calculateTopCities(properties: Property[]): Array<{ city: string; count: number }> {
+  // Compter les biens par ville
+  const cityCounts = new Map<string, number>();
+  
+  properties.forEach(property => {
+    if (property.city) {
+      const city = property.city.trim();
+      cityCounts.set(city, (cityCounts.get(city) || 0) + 1);
+    }
   });
 
-  // Diviser en deux périodes
-  const midPoint = Math.floor(sortedProperties.length / 2);
-  const firstPeriod = sortedProperties.slice(0, midPoint);
-  const secondPeriod = sortedProperties.slice(midPoint);
+  // Convertir en tableau et trier
+  return Array.from(cityCounts.entries())
+    .map(([city, count]) => ({ city, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+}
 
-  const firstPeriodAvg = calculateAverage(firstPeriod.map(p => p.price || 0));
-  const secondPeriodAvg = calculateAverage(secondPeriod.map(p => p.price || 0));
+function calculatePropertyTypeBreakdown(properties: Property[]): string {
+  const typeCounts = {
+    apartment: 0,
+    house: 0,
+    land: 0
+  };
+  
+  properties.forEach(property => {
+    const type = property.type.toLowerCase();
+    if (type in typeCounts) {
+      typeCounts[type as keyof typeof typeCounts]++;
+    }
+  });
 
-  if (firstPeriodAvg === 0) return 0;
+  const total = Object.values(typeCounts).reduce((sum, count) => sum + count, 0);
+  if (total === 0) return 'N/A';
+  
+  const typePercentages = Object.entries(typeCounts)
+    .filter(([, count]) => count > 0)
+    .sort(([, a], [, b]) => b - a)
+    .map(([type, count]) => {
+      const percentage = (count / total * 100).toFixed(0);
+      const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+      return `${capitalizedType} ${percentage}%`;
+    });
 
-  return ((secondPeriodAvg - firstPeriodAvg) / firstPeriodAvg) * 100;
+  return typePercentages.join(' / ') || 'N/A';
 }

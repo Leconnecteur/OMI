@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { auth } from './config/firebase';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import Advantages from './components/Advantages';
@@ -15,6 +16,26 @@ import PropertySearch from './pages/PropertySearch';
 
 function App() {
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    console.log('Firebase Config:', {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID
+    });
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      console.log('Auth State Changed:', user ? 'User logged in' : 'No user');
+      if (user) {
+        console.log('User ID:', user.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   if (loading) {
     return (
