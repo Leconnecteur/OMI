@@ -102,7 +102,18 @@ const servicingOptions = [
 
 const houseTypeOptions = [
   { value: 'individual', label: 'Individuelle' },
-  { value: 'semi-detached', label: 'Mitoyenne' }
+  { value: 'individual-condo', label: 'Individuelle en copropriété' },
+  { value: 'semi-detached', label: 'Mitoyenne' },
+  { value: 'semi-detached-condo', label: 'Mitoyenne en copropriété' }
+];
+
+const typologyOptions = [
+  { value: 'T1', label: 'T1' },
+  { value: 'T2', label: 'T2' },
+  { value: 'T3', label: 'T3' },
+  { value: 'T4', label: 'T4' },
+  { value: 'T5', label: 'T5' },
+  { value: 'T6+', label: 'T6 ou plus' }
 ];
 
 const PropertyForm: React.FC = () => {
@@ -174,53 +185,58 @@ const PropertyForm: React.FC = () => {
               <SelectField
                 label="Type de maison"
                 value={formData.houseType || ''}
-                options={[
-                  { value: 'individual', label: 'Individuelle' },
-                  { value: 'semi-detached', label: 'Mitoyenne' }
-                ]}
+                options={houseTypeOptions}
                 onChange={(value) => handleInputChange('houseType', value)}
-              />
-              <SelectField
-                label="État du bien"
-                value={formData.condition || 'good'}
-                options={conditionOptions}
-                onChange={(value) => handleInputChange('condition', value)}
-              />
-              <SelectField
-                label="Statut d'occupation"
-                value={formData.occupancyStatus || 'free'}
-                options={occupancyOptions}
-                onChange={(value) => handleInputChange('occupancyStatus', value)}
-              />
-              <InputField
-                label="Année de construction"
-                type="number"
-                value={formData.constructionYear || ''}
-                onChange={(value) => handleInputChange('constructionYear', value)}
+                required
               />
               <InputField
                 label="Surface habitable"
                 type="number"
                 value={formData.surface || ''}
                 onChange={(value) => handleInputChange('surface', value)}
+                required
               />
               <InputField
                 label="Surface du terrain"
                 type="number"
                 value={formData.plotSurface || ''}
                 onChange={(value) => handleInputChange('plotSurface', value)}
+                required
+              />
+              <SelectField
+                label="État du bien"
+                value={formData.condition || 'good'}
+                options={conditionOptions}
+                onChange={(value) => handleInputChange('condition', value)}
+                required
               />
               <SelectField
                 label="DPE Électricité"
-                value={formData.epcElectricity || 'D'}
+                value={formData.epcElectricity || ''}
                 options={epcOptions}
                 onChange={(value) => handleInputChange('epcElectricity', value)}
+                required
               />
               <SelectField
                 label="DPE GES"
-                value={formData.epcGes || 'D'}
+                value={formData.epcGes || ''}
                 options={epcOptions}
                 onChange={(value) => handleInputChange('epcGes', value)}
+                required
+              />
+              <InputField
+                label="Année de construction"
+                type="number"
+                value={formData.constructionYear || ''}
+                onChange={(value) => handleInputChange('constructionYear', value)}
+                required
+              />
+              <SelectField
+                label="Statut d'occupation"
+                value={formData.occupancyStatus || ''}
+                options={occupancyOptions}
+                onChange={(value) => handleInputChange('occupancyStatus', value)}
+                required
               />
             </>
           )}
@@ -231,70 +247,82 @@ const PropertyForm: React.FC = () => {
               <TypologyField 
                 value={formData.typology} 
                 onChange={(value) => handleInputChange('typology', value)} 
+                required
               />
               <BedroomsField 
                 value={formData.bedrooms} 
                 onChange={(value) => handleInputChange('bedrooms', value)} 
+                required
               />
               <InputField
                 label="Étage"
                 type="number"
                 value={formData.floor || ''}
                 onChange={(value) => handleInputChange('floor', value)}
+                required
               />
               <SelectField
                 label="Stationnement"
                 value={formData.parkingSpots?.toString() || '0'}
                 options={parkingOptions}
                 onChange={(value) => handleInputChange('parkingSpots', parseInt(value))}
-              />
-              <SelectField
-                label="État du bien"
-                value={formData.condition || 'good'}
-                options={conditionOptions}
-                onChange={(value) => handleInputChange('condition', value)}
-              />
-              <SelectField
-                label="Statut d'occupation"
-                value={formData.occupancyStatus || 'free'}
-                options={occupancyOptions}
-                onChange={(value) => handleInputChange('occupancyStatus', value)}
-              />
-              <SelectField
-                label="Extérieur"
-                value={formData.exterior || 'none'}
-                options={exteriorOptions}
-                onChange={(value) => handleInputChange('exterior', value)}
-              />
-              <SelectField
-                label="Exposition"
-                value={formData.exposure || ''}
-                options={exposureOptions}
-                onChange={(value) => handleInputChange('exposure', value)}
+                required
               />
               <InputField
                 label="Surface"
                 type="number"
                 value={formData.surface || ''}
                 onChange={(value) => handleInputChange('surface', value)}
+                required
+              />
+              <SelectField
+                label="État du bien"
+                value={formData.condition || ''}
+                options={conditionOptions}
+                onChange={(value) => handleInputChange('condition', value)}
+                required
+              />
+              <SelectField
+                label="Extérieur"
+                value={formData.exterior || ''}
+                options={exteriorOptions}
+                onChange={(value) => handleInputChange('exterior', value)}
+                required
+              />
+              <SelectField
+                label="Exposition"
+                value={formData.exposure || ''}
+                options={exposureOptions}
+                onChange={(value) => handleInputChange('exposure', value)}
+                required
               />
               <InputField
                 label="Année de construction"
                 type="number"
                 value={formData.constructionYear || ''}
                 onChange={(value) => handleInputChange('constructionYear', value)}
+                required
               />
               <SelectField
                 label="DPE Électricité"
-                value={formData.epcElectricity || 'D'}
+                value={formData.epcElectricity || ''}
                 options={epcOptions}
                 onChange={(value) => handleInputChange('epcElectricity', value)}
+                required
               />
               <SelectField
                 label="DPE GES"
-                value={formData.epcGes || 'D'}
+                value={formData.epcGes || ''}
                 options={epcOptions}
                 onChange={(value) => handleInputChange('epcGes', value)}
+                required
+              />
+              <SelectField
+                label="Statut d'occupation"
+                value={formData.occupancyStatus || ''}
+                options={occupancyOptions}
+                onChange={(value) => handleInputChange('occupancyStatus', value)}
+                required
               />
             </>
           )}
