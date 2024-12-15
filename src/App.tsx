@@ -10,7 +10,7 @@ import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
 import LoginForm from './components/auth/LoginForm';
 import Dashboard from './pages/Dashboard';
-import PropertyManagement from './pages/PropertyManagement';
+import PropertyPage from './pages/PropertyPage';
 import SalesMap from './pages/SalesMap';
 import PropertySearch from './pages/PropertySearch';
 
@@ -53,8 +53,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/map" element={<SalesMap />} />
             <Route path="/dashboard/search" element={<PropertySearch />} />
-            <Route path="/dashboard/data" element={<PropertyManagement />} />
-            <Route path="/dashboard/history" element={<PropertyManagement />} />
+            <Route path="/dashboard/data" element={<PropertyPage />} />
+            <Route path="/dashboard/history" element={<PropertyPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </>
         ) : (
