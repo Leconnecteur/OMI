@@ -171,103 +171,164 @@ const PropertyForm: React.FC = () => {
           {/* Champs spécifiques aux maisons */}
           {formData.type === 'house' && (
             <>
-              <TypologyField 
-                value={formData.typology} 
-                onChange={(value) => handleInputChange('typology', value)} 
-              />
               <SelectField
                 label="Type de maison"
                 value={formData.houseType || ''}
-                options={houseTypeOptions}
+                options={[
+                  { value: 'individual', label: 'Individuelle' },
+                  { value: 'semi-detached', label: 'Mitoyenne' }
+                ]}
                 onChange={(value) => handleInputChange('houseType', value)}
               />
-            </>
-          )}
-
-          {/* Champs communs aux maisons et appartements */}
-          {(formData.type === 'house' || formData.type === 'apartment') && (
-            <>
-              <BedroomsField 
-                value={formData.bedrooms} 
-                onChange={(value) => handleInputChange('bedrooms', value)} 
-              />
-              
-              <SelectField
-                label="Stationnement"
-                value={formData.parkingSpots?.toString() || '0'}
-                options={parkingOptions}
-                onChange={(value) => handleInputChange('parkingSpots', parseInt(value))}
-              />
-
               <SelectField
                 label="État du bien"
                 value={formData.condition || 'good'}
                 options={conditionOptions}
                 onChange={(value) => handleInputChange('condition', value)}
               />
-
               <SelectField
                 label="Statut d'occupation"
                 value={formData.occupancyStatus || 'free'}
                 options={occupancyOptions}
                 onChange={(value) => handleInputChange('occupancyStatus', value)}
               />
-
-              <SelectField
-                label="Extérieur"
-                value={formData.exterior || 'none'}
-                options={exteriorOptions}
-                onChange={(value) => handleInputChange('exterior', value)}
+              <InputField
+                label="Année de construction"
+                type="number"
+                value={formData.constructionYear || ''}
+                onChange={(value) => handleInputChange('constructionYear', value)}
               />
-
+              <InputField
+                label="Surface habitable"
+                type="number"
+                value={formData.surface || ''}
+                onChange={(value) => handleInputChange('surface', value)}
+              />
+              <InputField
+                label="Surface du terrain"
+                type="number"
+                value={formData.plotSurface || ''}
+                onChange={(value) => handleInputChange('plotSurface', value)}
+              />
               <SelectField
-                label="Exposition"
-                value={formData.exposure || ''}
-                options={exposureOptions}
-                onChange={(value) => handleInputChange('exposure', value)}
+                label="DPE Électricité"
+                value={formData.epcElectricity || 'D'}
+                options={epcOptions}
+                onChange={(value) => handleInputChange('epcElectricity', value)}
+              />
+              <SelectField
+                label="DPE GES"
+                value={formData.epcGes || 'D'}
+                options={epcOptions}
+                onChange={(value) => handleInputChange('epcGes', value)}
               />
             </>
           )}
 
           {/* Champs spécifiques aux appartements */}
           {formData.type === 'apartment' && (
-            <InputField
-              label="Étage"
-              type="number"
-              value={formData.floor || ''}
-              onChange={(value) => handleInputChange('floor', value)}
-            />
+            <>
+              <TypologyField 
+                value={formData.typology} 
+                onChange={(value) => handleInputChange('typology', value)} 
+              />
+              <BedroomsField 
+                value={formData.bedrooms} 
+                onChange={(value) => handleInputChange('bedrooms', value)} 
+              />
+              <InputField
+                label="Étage"
+                type="number"
+                value={formData.floor || ''}
+                onChange={(value) => handleInputChange('floor', value)}
+              />
+              <SelectField
+                label="Stationnement"
+                value={formData.parkingSpots?.toString() || '0'}
+                options={parkingOptions}
+                onChange={(value) => handleInputChange('parkingSpots', parseInt(value))}
+              />
+              <SelectField
+                label="État du bien"
+                value={formData.condition || 'good'}
+                options={conditionOptions}
+                onChange={(value) => handleInputChange('condition', value)}
+              />
+              <SelectField
+                label="Statut d'occupation"
+                value={formData.occupancyStatus || 'free'}
+                options={occupancyOptions}
+                onChange={(value) => handleInputChange('occupancyStatus', value)}
+              />
+              <SelectField
+                label="Extérieur"
+                value={formData.exterior || 'none'}
+                options={exteriorOptions}
+                onChange={(value) => handleInputChange('exterior', value)}
+              />
+              <SelectField
+                label="Exposition"
+                value={formData.exposure || ''}
+                options={exposureOptions}
+                onChange={(value) => handleInputChange('exposure', value)}
+              />
+              <InputField
+                label="Surface"
+                type="number"
+                value={formData.surface || ''}
+                onChange={(value) => handleInputChange('surface', value)}
+              />
+              <InputField
+                label="Année de construction"
+                type="number"
+                value={formData.constructionYear || ''}
+                onChange={(value) => handleInputChange('constructionYear', value)}
+              />
+              <SelectField
+                label="DPE Électricité"
+                value={formData.epcElectricity || 'D'}
+                options={epcOptions}
+                onChange={(value) => handleInputChange('epcElectricity', value)}
+              />
+              <SelectField
+                label="DPE GES"
+                value={formData.epcGes || 'D'}
+                options={epcOptions}
+                onChange={(value) => handleInputChange('epcGes', value)}
+              />
+            </>
           )}
 
           {/* Champs spécifiques aux terrains */}
           {formData.type === 'land' && (
             <>
-              <SelectField
-                label="Topographie"
-                value={formData.topography || ''}
-                options={topographyOptions}
-                onChange={(value) => handleInputChange('topography', value)}
-              />
-              
-              <SelectField
-                label="Assainissement"
-                value={formData.sanitation || ''}
-                options={sanitationOptions}
-                onChange={(value) => handleInputChange('sanitation', value)}
-              />
-              
-              <SelectField
-                label="Viabilisation"
-                value={formData.servicing || ''}
-                options={servicingOptions}
-                onChange={(value) => handleInputChange('servicing', value)}
-              />
-
               <InputField
                 label="Surface du terrain"
                 type="number"
                 value={formData.plotSurface || ''}
                 onChange={(value) => handleInputChange('plotSurface', value)}
+                required
+              />
+              <SelectField
+                label="Topographie"
+                value={formData.topography || ''}
+                options={topographyOptions}
+                onChange={(value) => handleInputChange('topography', value)}
+                required
+              />
+              <SelectField
+                label="Assainissement"
+                value={formData.sanitation || ''}
+                options={sanitationOptions}
+                onChange={(value) => handleInputChange('sanitation', value)}
+                required
+              />
+              <SelectField
+                label="Viabilisation"
+                value={formData.servicing || ''}
+                options={servicingOptions}
+                onChange={(value) => handleInputChange('servicing', value)}
+                required
               />
             </>
           )}
