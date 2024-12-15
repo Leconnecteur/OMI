@@ -15,8 +15,8 @@ export interface Property {
   houseType?: HouseType | null;
   typology: string;
   price: number;
-  saleDate: string;
-  firstMandateDate: string;
+  saleDate: any; // Firestore Timestamp
+  firstMandateDate: any; // Firestore Timestamp
   firstMandatePrice: number;
   address: string;
   city: string;
@@ -31,10 +31,10 @@ export interface Property {
   epcGes: EPCRating;
   occupancyStatus: OccupancyStatus;
   surface: number;
-  plotSurface?: number | null;
-  topography?: TopographyType | null;
-  sanitation?: SanitationType | null;
-  servicing?: ServicingType | null;
-  createdAt: Date;
-  userId: string;
+  plotSurface?: number;
+  userId?: string;
+  createdAt?: any; // Firestore Timestamp
+  topography?: TopographyType;
+  sanitation?: SanitationType;
+  servicing?: ServicingType;
 }
