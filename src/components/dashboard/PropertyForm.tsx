@@ -10,7 +10,7 @@ import InputField from './PropertyForm/InputField';
 import DatePickerField from './PropertyForm/DatePickerField';
 import { Property, PropertyType } from '../../types/property';
 import { TabsList, TabsTrigger, TabsContent } from './Tabs';
-import PropertyHistory from './PropertyHistory';
+import PropertyHistory from '../history/PropertyHistory';
 
 const initialFormData: Partial<Property> = {
   type: '',
