@@ -4,7 +4,7 @@ import { Building2, LayoutDashboard, Map, FileSpreadsheet, LogOut, Menu, X } fro
 import { signOut } from '../../services/auth';
 import logo from '../../assets/logo.png';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
-import PropertyForm from '../property/PropertyForm';
+import PropertyForm from './PropertyForm';
 import PropertyHistory from '../history/PropertyHistory';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
