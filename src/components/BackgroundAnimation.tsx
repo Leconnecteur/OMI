@@ -1,7 +1,7 @@
 import React from 'react';
 import './BackgroundAnimation.css';
 
-const BackgroundAnimation = () => {
+const BackgroundAnimation: React.FC = () => {
   return (
     <div className="background-animation">
       <div className="circle circle-1"></div>
