@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, orderBy, Timestamp, addDoc } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, Timestamp, addDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Property } from '../types/property';
 
@@ -47,21 +47,21 @@ export async function submitProperty(
 
 export async function getRecentSales(months: number = 12): Promise<Property[]> {
   try {
-    const now = new Date();
-    const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
-    const startTimestamp = Timestamp.fromDate(startDate);
-
     const q = query(
       collection(db, 'properties'),
-      where('saleDate', '>=', startTimestamp),
-      orderBy('saleDate', 'desc')
+      orderBy('createdAt', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Property));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.() || null,
+        saleDate: data.saleDate?.toDate?.() || data.saleDate || null
+      } as Property;
+    });
   } catch (error) {
     console.error('Error fetching recent sales:', error);
     throw error;

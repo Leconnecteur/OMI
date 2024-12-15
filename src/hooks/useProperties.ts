@@ -19,7 +19,7 @@ export function useProperties() {
       try {
         setLoading(true);
         setError(null);
-        const fetchedProperties = await getRecentSales(12);
+        const fetchedProperties = await getRecentSales();
         setProperties(fetchedProperties);
       } catch (err) {
         console.error('Error fetching properties:', err);
