@@ -60,19 +60,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </Link>
               <Link
                 to="/dashboard/search"
-                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-[#4A4238] text-[#E5DED5]"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-[#4A4238] hover:bg-[#4A4238] hover:text-[#E5DED5]"
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <Building2 className="mr-3 h-6 w-6" />
-                Historique
+                Recherche
               </Link>
               <Link
                 to="/dashboard/data"
-                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-[#4A4238] text-[#E5DED5]"
+                className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-[#4A4238] hover:bg-[#4A4238] hover:text-[#E5DED5]"
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <FileSpreadsheet className="mr-3 h-6 w-6" />
-                Saisie
+                Saisie données
               </Link>
             </nav>
           </div>

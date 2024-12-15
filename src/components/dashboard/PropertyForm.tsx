@@ -179,9 +179,9 @@ export default function PropertyForm() {
 
   return (
     <Tabs defaultValue="saisie" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="saisie">Saisie</TabsTrigger>
-        <TabsTrigger value="historique">Historique</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-2 bg-[#4A4238] rounded-lg p-1">
+        <TabsTrigger value="saisie" className="text-[#E5DED5] data-[state=active]:bg-[#E5DED5] data-[state=active]:text-[#4A4238]">Saisie</TabsTrigger>
+        <TabsTrigger value="historique" className="text-[#E5DED5] data-[state=active]:bg-[#E5DED5] data-[state=active]:text-[#4A4238]">Historique</TabsTrigger>
       </TabsList>
       <TabsContent value="saisie">
         <form onSubmit={handleSubmit} className="space-y-4">
