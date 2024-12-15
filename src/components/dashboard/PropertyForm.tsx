@@ -101,9 +101,8 @@ const servicingOptions = [
 ];
 
 const houseTypeOptions = [
-  { value: 'traditional', label: 'Traditionnel' },
-  { value: 'contemporary', label: 'Contemporain' },
-  { value: 'architect', label: 'Architecte' }
+  { value: 'individual', label: 'Individuelle' },
+  { value: 'semi-detached', label: 'Mitoyenne' }
 ];
 
 const PropertyForm: React.FC = () => {
@@ -164,15 +163,34 @@ const PropertyForm: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <TypeField value={formData.type as PropertyType} onChange={(value) => handleInputChange('type', value)} />
+          <TypeField 
+            value={formData.type as PropertyType} 
+            onChange={(value) => handleInputChange('type', value)} 
+          />
           
+          {/* Champs spécifiques aux maisons */}
           {formData.type === 'house' && (
-            <TypologyField value={formData.typology} onChange={(value) => handleInputChange('typology', value)} />
+            <>
+              <TypologyField 
+                value={formData.typology} 
+                onChange={(value) => handleInputChange('typology', value)} 
+              />
+              <SelectField
+                label="Type de maison"
+                value={formData.houseType || ''}
+                options={houseTypeOptions}
+                onChange={(value) => handleInputChange('houseType', value)}
+              />
+            </>
           )}
 
+          {/* Champs communs aux maisons et appartements */}
           {(formData.type === 'house' || formData.type === 'apartment') && (
             <>
-              <BedroomsField value={formData.bedrooms} onChange={(value) => handleInputChange('bedrooms', value)} />
+              <BedroomsField 
+                value={formData.bedrooms} 
+                onChange={(value) => handleInputChange('bedrooms', value)} 
+              />
               
               <SelectField
                 label="Stationnement"
@@ -195,22 +213,6 @@ const PropertyForm: React.FC = () => {
                 onChange={(value) => handleInputChange('occupancyStatus', value)}
               />
 
-              {formData.type === 'apartment' && (
-                <InputField
-                  label="Étage"
-                  type="number"
-                  value={formData.floor || ''}
-                  onChange={(value) => handleInputChange('floor', value ? parseInt(value) : null)}
-                />
-              )}
-
-              <InputField
-                label="Année de construction"
-                type="number"
-                value={formData.constructionYear || ''}
-                onChange={(value) => handleInputChange('constructionYear', value ? parseInt(value) : null)}
-              />
-
               <SelectField
                 label="Extérieur"
                 value={formData.exterior || 'none'}
@@ -224,23 +226,20 @@ const PropertyForm: React.FC = () => {
                 options={exposureOptions}
                 onChange={(value) => handleInputChange('exposure', value)}
               />
-
-              <SelectField
-                label="DPE Électricité"
-                value={formData.epcElectricity || 'D'}
-                options={epcOptions}
-                onChange={(value) => handleInputChange('epcElectricity', value)}
-              />
-
-              <SelectField
-                label="DPE GES"
-                value={formData.epcGes || 'D'}
-                options={epcOptions}
-                onChange={(value) => handleInputChange('epcGes', value)}
-              />
             </>
           )}
 
+          {/* Champs spécifiques aux appartements */}
+          {formData.type === 'apartment' && (
+            <InputField
+              label="Étage"
+              type="number"
+              value={formData.floor || ''}
+              onChange={(value) => handleInputChange('floor', value)}
+            />
+          )}
+
+          {/* Champs spécifiques aux terrains */}
           {formData.type === 'land' && (
             <>
               <SelectField
@@ -249,30 +248,28 @@ const PropertyForm: React.FC = () => {
                 options={topographyOptions}
                 onChange={(value) => handleInputChange('topography', value)}
               />
-
+              
               <SelectField
                 label="Assainissement"
                 value={formData.sanitation || ''}
                 options={sanitationOptions}
                 onChange={(value) => handleInputChange('sanitation', value)}
               />
-
+              
               <SelectField
                 label="Viabilisation"
                 value={formData.servicing || ''}
                 options={servicingOptions}
                 onChange={(value) => handleInputChange('servicing', value)}
               />
-            </>
-          )}
 
-          {formData.type === 'house' && (
-            <SelectField
-              label="Type de maison"
-              value={formData.houseType || ''}
-              options={houseTypeOptions}
-              onChange={(value) => handleInputChange('houseType', value)}
-            />
+              <InputField
+                label="Surface du terrain"
+                type="number"
+                value={formData.plotSurface || ''}
+                onChange={(value) => handleInputChange('plotSurface', value)}
+              />
+            </>
           )}
         </div>
 
