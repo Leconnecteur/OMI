@@ -45,58 +45,25 @@ export async function submitProperty(
   }
 }
 
-export async function getRecentSales(months: number = 12, userId: string): Promise<Property[]> {
-  console.log('Getting recent sales for user:', userId, 'months:', months);
-  if (!userId) {
-    console.log('No userId provided');
-    return [];
-  }
-
+export async function getRecentSales(months: number = 12): Promise<Property[]> {
   try {
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - months);
-    startDate.setHours(0, 0, 0, 0);
-    
-    console.log('Fetching properties since:', startDate);
-    
-    const propertiesRef = collection(db, 'properties');
-    console.log('Collection reference:', propertiesRef);
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth() - months, 1);
+    const startTimestamp = Timestamp.fromDate(startDate);
 
     const q = query(
-      propertiesRef,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      collection(db, 'properties'),
+      where('saleDate', '>=', startTimestamp),
+      orderBy('saleDate', 'desc')
     );
-    console.log('Query created:', q);
 
-    console.log('Executing Firestore query...');
     const querySnapshot = await getDocs(q);
-    console.log('Query completed, documents found:', querySnapshot.size);
-
-    const properties = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      console.log('Raw property data:', {
-        id: doc.id,
-        mandateDate: data.mandateDate,
-        saleDate: data.saleDate,
-        dateMandat: data.dateMandat, // Checking alternative field names
-        dateVente: data.dateVente,
-        allFields: Object.keys(data)
-      });
-      
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate?.() || new Date(),
-        mandateDate: data.dateMandat?.toDate?.() || data.mandateDate?.toDate?.() || null,
-        saleDate: data.dateVente?.toDate?.() || data.saleDate?.toDate?.() || null,
-      } as Property;
-    });
-
-    console.log('Processed properties:', properties);
-    return properties;
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Property));
   } catch (error) {
-    console.error('Error in getRecentSales:', error);
+    console.error('Error fetching recent sales:', error);
     throw error;
   }
 }

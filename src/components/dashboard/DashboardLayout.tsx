@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Building2, LayoutDashboard, Map, FileSpreadsheet, LogOut, Menu, X } from 'lucide-react';
 import { signOut } from '../../services/auth';
+import logo from '../../assets/logo.png';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="h-full flex flex-col">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex justify-center px-4 mb-6">
-              <img className="h-16 w-auto" src="/src/assets/logo.png" alt="OMI Logo" />
+              <img className="h-16 w-auto" src={logo} alt="OMI Logo" />
             </div>
             <nav className="mt-5 flex-1 px-2 space-y-1">
               <Link
@@ -102,7 +103,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Menu className="h-6 w-6" />
               )}
             </button>
-            <img className="h-8 w-auto" src="/src/assets/logo.png" alt="OMI Logo" />
+            <img className="h-8 w-auto" src={logo} alt="OMI Logo" />
           </div>
         </div>
 

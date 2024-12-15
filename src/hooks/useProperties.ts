@@ -11,7 +11,7 @@ export function useProperties() {
 
   useEffect(() => {
     async function fetchProperties() {
-      if (!user?.uid) {
+      if (!user) {
         setLoading(false);
         return;
       }
@@ -19,7 +19,7 @@ export function useProperties() {
       try {
         setLoading(true);
         setError(null);
-        const fetchedProperties = await getRecentSales(12, user.uid);
+        const fetchedProperties = await getRecentSales(12);
         setProperties(fetchedProperties);
       } catch (err) {
         console.error('Error fetching properties:', err);
@@ -31,7 +31,7 @@ export function useProperties() {
     }
 
     fetchProperties();
-  }, [user?.uid]);
+  }, [user]);
 
   return { properties, loading, error };
 }
