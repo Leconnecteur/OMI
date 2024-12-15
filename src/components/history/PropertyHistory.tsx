@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import useUserProperties from '../../hooks/useUserProperties';
+import { useUserProperties } from '../../hooks/useUserProperties';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import type { Property } from '../../types/property';
 
 const PropertyHistory: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<string>('');
@@ -45,12 +46,12 @@ const PropertyHistory: React.FC = () => {
       </div>
 
       <div className="grid gap-4">
-        {filteredProperties?.map((property, index) => {
+        {filteredProperties?.map((property: Property, index: number) => {
           const saleDate = property.saleDate?.toDate?.() || new Date();
           
           return (
             <div
-              key={index}
+              key={property.id || index}
               className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
