@@ -1,118 +1,111 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Property } from '@/types/property';
-import { useUserProperties } from '@/hooks/useUserProperties';
+import React, { useState } from 'react';
+import useUserProperties from '../../hooks/useUserProperties';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const PropertyHistory: React.FC = () => {
-  const { properties, loading } = useUserProperties();
-  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+const PropertyHistory = () => {
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const { properties, loading, error } = useUserProperties();
 
-  // Générer la liste des mois disponibles
-  const availableMonths = useMemo(() => {
-    const months = new Set<string>();
-    properties.forEach((property) => {
-      if (property.createdAt) {
-        const date = new Date(property.createdAt);
-        const monthKey = format(date, 'yyyy-MM');
-        months.add(monthKey);
-      }
-    });
-    return Array.from(months).sort().reverse();
-  }, [properties]);
+  const months = [...new Set(properties?.map(prop => 
+    format(prop.saleDate.toDate(), 'MMMM yyyy', { locale: fr })
+  ))].sort((a, b) => {
+    const dateA = new Date(a.split(' ')[1], fr.months.indexOf(a.split(' ')[0]));
+    const dateB = new Date(b.split(' ')[1], fr.months.indexOf(b.split(' ')[0]));
+    return dateB.getTime() - dateA.getTime();
+  });
 
-  // Filtrer les propriétés par mois
-  const filteredProperties = useMemo(() => {
-    if (selectedMonth === 'all') return properties;
-    
-    return properties.filter((property) => {
-      if (!property.createdAt) return false;
-      const date = new Date(property.createdAt);
-      const propertyMonth = format(date, 'yyyy-MM');
-      return propertyMonth === selectedMonth;
-    });
-  }, [properties, selectedMonth]);
+  const filteredProperties = selectedMonth
+    ? properties?.filter(prop => 
+        format(prop.saleDate.toDate(), 'MMMM yyyy', { locale: fr }) === selectedMonth
+      )
+    : properties;
 
-  if (loading) {
-    return <div>Chargement...</div>;
-  }
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>Une erreur est survenue: {error.message}</div>;
+  if (!properties?.length) return <div>Aucun bien immobilier trouvé dans votre historique.</div>;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Historique des biens saisis</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4">
-          <Select
-            value={selectedMonth}
-            onValueChange={setSelectedMonth}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sélectionner un mois" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les mois</SelectItem>
-              {availableMonths.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {format(new Date(month), 'MMMM yyyy', { locale: fr })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="block w-48 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#4A4238] focus:border-[#4A4238]"
+        >
+          <option value="">Tous les mois</option>
+          {months.map(month => (
+            <option key={month} value={month}>
+              {month.charAt(0).toUpperCase() + month.slice(1)}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date de saisie</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Adresse</TableHead>
-                <TableHead>Prix</TableHead>
-                <TableHead>Surface</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProperties.map((property) => (
-                <TableRow key={property.id}>
-                  <TableCell>
-                    {property.createdAt
-                      ? format(new Date(property.createdAt), 'dd/MM/yyyy', { locale: fr })
-                      : 'N/A'}
-                  </TableCell>
-                  <TableCell>{property.type}</TableCell>
-                  <TableCell>{property.address}</TableCell>
-                  <TableCell>{property.price.toLocaleString('fr-FR')} €</TableCell>
-                  <TableCell>{property.surface} m²</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="grid gap-4">
+        {filteredProperties?.map((property, index) => (
+          <div
+            key={index}
+            className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {property.type === 'house' ? 'Maison' : 
+                   property.type === 'apartment' ? 'Appartement' : 'Terrain'}
+                  {property.typology && ` - ${property.typology}`}
+                </h3>
+                <p className="text-gray-600">{property.address}</p>
+                <p className="text-gray-600">{property.city}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-600">
+                  <span className="font-medium">Date de vente:</span>{' '}
+                  {format(property.saleDate.toDate(), 'dd MMMM yyyy', { locale: fr })}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-medium">Prix:</span>{' '}
+                  {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
+                    .format(property.price)}
+                </p>
+                {property.surface && (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Surface:</span>{' '}
+                    {property.surface} m²
+                  </p>
+                )}
+              </div>
+
+              {property.type !== 'land' && (
+                <div>
+                  {property.condition && (
+                    <p className="text-gray-600">
+                      <span className="font-medium">État:</span>{' '}
+                      {property.condition === 'new' ? 'Neuf' :
+                       property.condition === 'good' ? 'Bon état' :
+                       property.condition === 'to_renovate' ? 'À rénover' : property.condition}
+                    </p>
+                  )}
+                  {property.constructionYear && (
+                    <p className="text-gray-600">
+                      <span className="font-medium">Année de construction:</span>{' '}
+                      {property.constructionYear}
+                    </p>
+                  )}
+                  {property.parkingSpots > 0 && (
+                    <p className="text-gray-600">
+                      <span className="font-medium">Parking:</span>{' '}
+                      {property.parkingSpots}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 
