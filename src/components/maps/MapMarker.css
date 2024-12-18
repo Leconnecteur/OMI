@@ -1,0 +1,113 @@
+.custom-marker {
+  background: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  border: 1px solid #e0e0e0;
+}
+
+.custom-marker:hover {
+  transform: scale(1.1);
+}
+
+.marker-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.marker-label {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-top: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  text-transform: capitalize;
+  font-weight: 500;
+  color: #4A4238;
+}
+
+.marker {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.marker-content {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: #B87D42;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.marker-content::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 15px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 10px 0;
+  border-color: #B87D42 transparent transparent;
+  transform: rotate(45deg);
+}
+
+.marker svg {
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+  fill: white;
+}
+
+.marker:hover .marker-content {
+  transform: scale(1.1);
+}
+
+/* Couleurs spécifiques pour chaque type de propriété */
+.marker-appartement .marker-content::before {
+  background-color: #B87D42;
+}
+
+.marker-appartement .marker-content::after {
+  border-color: #B87D42 transparent transparent;
+}
+
+.marker-maison .marker-content::before {
+  background-color: #B87D42;
+}
+
+.marker-maison .marker-content::after {
+  border-color: #B87D42 transparent transparent;
+}
+
+.marker-terrain .marker-content::before {
+  background-color: #B87D42;
+}
+
+.marker-terrain .marker-content::after {
+  border-color: #B87D42 transparent transparent;
+}
