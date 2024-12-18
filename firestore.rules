@@ -81,15 +81,16 @@ service cloud.firestore {
 
     // Règles pour la collection properties
     match /properties/{propertyId} {
-      allow read: if true;
-      allow create: if true;
-      allow update: if true;
-      allow delete: if true;
+      allow read: if isAuthenticated();  // Tout utilisateur authentifié peut lire
+      allow create: if isAuthenticated() && isValidProperty();  // Création avec validation
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && isValidProperty();  // Mise à jour par le propriétaire uniquement
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);  // Suppression par le propriétaire uniquement
     }
 
     // Règles pour la collection cache
     match /cache/{document=**} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
   }
 }

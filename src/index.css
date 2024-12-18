@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Styles pour la carte */
+.gm-style {
+  touch-action: pan-x pan-y !important;
+}
+
+/* Empêcher le zoom de la page sur mobile */
+@media (max-width: 767px) {
+  html, body {
+    touch-action: pan-x pan-y;
+  }
+}

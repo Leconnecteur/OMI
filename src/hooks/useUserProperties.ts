@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Property } from '../types/property';
 import { useAuth } from './useAuth';
@@ -21,9 +21,9 @@ export function useUserProperties() {
         setLoading(true);
         setError(null);
 
+        // Récupérer toutes les propriétés pour la carte
         const q = query(
           collection(db, 'properties'),
-          where('userId', '==', user.uid),
           orderBy('createdAt', 'desc')
         );
 
@@ -34,9 +34,10 @@ export function useUserProperties() {
           createdAt: doc.data().createdAt?.toDate?.() || null
         })) as Property[];
 
+        console.log('Properties fetched:', userProperties.length);
         setProperties(userProperties);
       } catch (err) {
-        console.error('Error fetching user properties:', err);
+        console.error('Error fetching properties:', err);
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
         setProperties([]);
       } finally {
